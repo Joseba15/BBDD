@@ -1,0 +1,114 @@
+/*
+ALTER SESSION SET "_oracle_script"=TRUE;
+CREATE USER ej2DML identified BY ej2DML;
+GRANT CONNECT , RESOURCE, DBA TO ej2DML;
+*/
+
+CREATE TABLE DEPARTAMENTO (
+	codigo NUMBER(10),
+	nombre VARCHAR2(100),
+	presupuesto NUMBER (10,2),
+	
+	CONSTRAINT pk_departamento PRIMARY KEY (codigo)
+
+);
+
+CREATE TABLE EMPLEADO (
+	codigo NUMBER(10),
+	nif VARCHAR2(9),
+	nombre VARCHAR2(100),
+	apellido1 VARCHAR2(100),
+	apellido2 VARCHAR2(100),
+	codigo_departamento NUMBER(10),
+	
+	CONSTRAINT pk_empleado PRIMARY KEY (codigo),
+
+	CONSTRAINT fk_empleado FOREIGN KEY (codigo_departamento) REFERENCES DEPARTAMENTO(codigo)
+);
+
+ALTER TABLE DEPARTAMENTO ADD gasto NUMBER(7);
+
+
+
+INSERT INTO DEPARTAMENTO  VALUES (1,'Desarrollo',120000,6000);
+INSERT INTO DEPARTAMENTO  VALUES (2, 'Sistemas', 150000, 21000 );
+INSERT INTO DEPARTAMENTO  VALUES (3, 'Recursos Humanos', 280000, 25000);
+INSERT INTO DEPARTAMENTO  VALUES (4, 'Contabilidad', 110000, 3000 );
+INSERT INTO DEPARTAMENTO  VALUES (5, 'I+D', 375000, 380000 );
+INSERT INTO DEPARTAMENTO  VALUES (6, 'Proyectos', 0, 0 );
+INSERT INTO DEPARTAMENTO  VALUES (7, 'Publicidad', 0, 1000);
+
+INSERT INTO EMPLEADO VALUES (1, '32481596F', 'Aarón', 'Rivero', 'Gómez', 1 );
+INSERT INTO EMPLEADO VALUES (2, 'Y5575632D', 'Adela', 'Salas', 'Díaz', 2 );
+INSERT INTO EMPLEADO VALUES (3, 'R6970642B', 'Adolfo', 'Rubio', 'Flores', 3 );
+INSERT INTO EMPLEADO VALUES (4, '77705545E', 'Adrián', 'Suárez', NULL, 4 );
+INSERT INTO EMPLEADO VALUES (5, '17087203C', 'Marcos', 'Loyola', 'Méndez', 5 );
+INSERT INTO EMPLEADO VALUES (6, '38382980M', 'María', 'Santana', 'Moreno', 1 );
+INSERT INTO EMPLEADO VALUES (7, '80576669X', 'Pilar', 'Ruiz', NULL, 2 );
+INSERT INTO EMPLEADO VALUES (8, '71651431Z', 'Pepe', 'Ruiz', 'Santana', 3 );
+INSERT INTO EMPLEADO VALUES (9, '56399183D', 'Juan', 'Gómez', 'López', 2 );
+INSERT INTO EMPLEADO VALUES (10, '46384486H', 'Diego','Flores', 'Salas', 5 );
+INSERT INTO EMPLEADO VALUES (11, '67389283A', 'Marta','Herrera', 'Gil', 1 );
+INSERT INTO EMPLEADO VALUES (12, '41234836R', 'Irene','Salas', 'Flores', NULL );
+INSERT INTO EMPLEADO VALUES (13, '82635162B', 'Juan Antonio','Sáez', 'Guerrero', NULL );
+
+
+SELECT * FROM EMPLEADO e ;
+
+
+--1. 
+INSERT INTO DEPARTAMENTO (codigo,nombre,presupuesto) VALUES (8,'Administracion',11000);
+--2.
+INSERT INTO DEPARTAMENTO (nombre,presupuesto ) VALUES ('Marketing',12000); --se necesita la clave primaria de la tabla departamento 
+--3.
+INSERT INTO DEPARTAMENTO VALUES (10,'Administracion2',0,1400);
+--4.
+INSERT INTO EMPLEADO VALUES (14,'28945612J','Joseba','Diaz','Sanchez',1);
+--5.
+INSERT INTO EMPLEADO (nif,nombre,apellido1,apellido2,codigo_departamento) VALUES ('295112347R', 'Joseba','Diaz', 'Gonzalez', 1 ); --se necesita la clave primaria de la tabla empleado 
+--6. 
+CREATE TABLE DEPARTAMENTO_BACKUP (
+	codigo NUMBER(10),
+	nombre VARCHAR2(100),
+	presupuesto NUMBER (10,2),
+				
+	CONSTRAINT pk_dept_back PRIMARY KEY (codigo)
+
+);
+ALTER TABLE DEPARTAMENTO_BACKUP ADD gasto NUMBER(7);
+/*
+INSERT INTO DEPARTAMENTO_BACKUP  VALUES (1,'Desarrollo',120000,6000);
+INSERT INTO DEPARTAMENTO_BACKUP  VALUES (2, 'Sistemas', 150000, 21000 );
+INSERT INTO DEPARTAMENTO_BACKUP  VALUES (3, 'Recursos Humanos', 280000, 25000);
+INSERT INTO DEPARTAMENTO_BACKUP  VALUES (4, 'Contabilidad', 110000, 3000 );
+INSERT INTO DEPARTAMENTO_BACKUP  VALUES (5, 'I+D', 375000, 380000 );
+INSERT INTO DEPARTAMENTO_BACKUP  VALUES (6, 'Proyectos', 0, 0 );
+INSERT INTO DEPARTAMENTO_BACKUP  VALUES (7, 'Publicidad', 0, 1000);
+*/
+-- La siguiente forma es mas sencilla y mas rapida que la anterior
+TRUNCATE TABLE DEPARTAMENTO_BACKUP ;
+INSERT INTO DEPARTAMENTO_BACKUP SELECT * FROM DEPARTAMENTO;
+SELECT * FROM DEPARTAMENTO_BACKUP ;
+
+
+--7.
+DELETE FROM DEPARTAMENTO WHERE nombre='Proyectos';
+
+--8.
+DELETE FROM DEPARTAMENTO WHERE nombre='Desarrollo';
+
+--9.
+SELECT * FROM DEPARTAMENTO;
+UPDATE DEPARTAMENTO SET codigo=20 WHERE codigo=3;
+
+--10.
+UPDATE DEPARTAMENTO SET codigo=40 WHERE nombre='Publicidad';
+
+--11.
+SELECT * FROM DEPARTAMENTO;
+UPDATE DEPARTAMENTO SET presupuesto=presupuesto+50000 WHERE presupuesto<20000;
+
+--12.
+SELECT * FROM EMPLEADO;
+DELETE FROM EMPLEADO WHERE codigo_departamento IS NULL;
+
