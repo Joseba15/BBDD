@@ -1,0 +1,2 @@
+   SELECT * FROM crime_scene_report where city='SQL City'and type='murder'and date='201
+
