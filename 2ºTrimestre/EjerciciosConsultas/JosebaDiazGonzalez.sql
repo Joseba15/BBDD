@@ -19,6 +19,7 @@ ORDER BY p.ESPECTADORES DESC;
 
 -- Ejercicio 4:
 
+
 SELECT c.CINE 
 FROM CINE c
 WHERE lower(c.CINE) LIKE '%ar%';
