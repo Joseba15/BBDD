@@ -1,8 +1,8 @@
-/*
+
 ALTER SESSION SET "_oracle_script"=TRUE;
 CREATE USER ej2universidad identified BY ej2universidad;
 GRANT CONNECT , RESOURCE, DBA TO ej2universidad;
-*/
+
 
 -- Ejercicio 1:
 
