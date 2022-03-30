@@ -1,8 +1,8 @@
 
 ALTER SESSION SET "_oracle_script" = TRUE;
-CREATE USER ej1gestion IDENTIFIED BY ej1gestion;
-GRANT CONNECT , RESOURCE , DBA TO ej1gestion;
-
+CREATE USER gestion IDENTIFIED BY gestion;
+GRANT CONNECT , RESOURCE , DBA TO gestion;
+/*
 -- Ejercicio 1:
 
 SELECT  f.CODFAC,f.FECHA,f.DTO*2 
@@ -134,7 +134,7 @@ BETWEEN 0 AND 5;
 
 SELECT p.NOMBRE FROM PROVINCIAS p 
 WHERE p.NOMBRE LIKE '%ma%' OR p.NOMBRE LIKE '%MA%';
-
+*/
 
 
 

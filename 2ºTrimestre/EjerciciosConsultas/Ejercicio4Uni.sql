@@ -1,3 +1,15 @@
+-- Ejercicio 1:
+select al.IDALUMNO
+from ALUMNO_ASIGNATURA al
+where al.IDASIGNATURA !='150212'
+and al.IDASIGNATURA!='130113';
+
+-- Ejercicio 2:
+select a.NOMBRE
+from ASIGNATURA a
+where a.CREDITOS  > (select a2.CREDITOS
+                    from ASIGNATURA a2
+                    where a2.NOMBRE like 'Seguridad Vial');
 -- Ejercicio 5:
 SELECT a.NOMBRE 
 FROM ASIGNATURA a
@@ -52,13 +64,19 @@ WHERE a.CREDITOS =(
 
 SELECT a.NOMBRE 
 FROM ASIGNATURA a,ALUMNO_ASIGNATURA aa 
-WHERE aa.IDASIGNATURA=a.IDASIGNATURA 
-AND aa.NUMEROMATRICULA =0;
+WHERE aa.IDASIGNATURA(+)=a.IDASIGNATURA
+AND aa.IDASIGNATURA is null;
 
 -- Ejercicio 12:
 
-SELECT p.CIUDAD 
+SELECT p.CIUDAD ,p.NOMBRE
 FROM PERSONA p,PROFESOR p2 ,ALUMNO a 
 WHERE p.DNI =p2.DNI 
 AND a.DNI =p.DNI ;
-		
+
+SELECT p.CIUDAD, p.NOMBRE
+FROM PERSONA p
+WHERE p.CIUDAD in (select a.DNI
+               from ALUMNO a)
+and p.DNI in (select p2.DNI
+            from PROFESOR p2);
