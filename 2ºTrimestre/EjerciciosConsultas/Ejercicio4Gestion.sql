@@ -36,14 +36,14 @@ where p.CODPUE=c.CODPUE(+)
 and c.CODPUE is null ;
 
 -- Ejercicio 6:
-select count(a.CODART)
-from ARTICULOS a,FACTURAS f,LINEAS_FAC lf
-where a.STOCK>20
-and a.PRECIO>15
-and a.CODART=lf.CODART
-and lf.CODFAC=f.CODFAC
-and extract(year from f.FECHA)= extract(year from sysdate -1)
-and extract(month from f.FECHA) between 10 and 12;
+SELECT count(a.CODART)
+FROM LINEAS_FAC lf ,ARTICULOS a
+WHERE lf.CODART =a.CODART
+AND a.STOCK >20 AND lf.PRECIO >15
+AND CODFAC NOT IN (SELECT CODFAC
+					FROM FACTURAS f
+					WHERE EXTRACT(MONTH FROM fecha) BETWEEN 10 AND 12
+					AND EXTRACT(YEAR FROM fecha)=EXTRACT(YEAR FROM sysdate)-1);
 
 -- Ejercicio 7:
 /*
@@ -57,18 +57,67 @@ or f.IVA is null;
 select count(c.CODCLI)
 from CLIENTES c,FACTURAS f
 where f.CODCLI=c.CODCLI
-and extract(year from f.FECHA)=-1
-and f.IVA =0
-or f.IVA is null;
+and extract(year from f.FECHA)=extract(year from sysdate -1)
+and (f.IVA !=0
+or f.IVA is not null);
 
 -- Ejercicio 8:
-/*
-select c.CODCLI,c.NOMBRE
-from CLIENTES c,FACTURAS f
-*/
+SELECT c.CODCLI , c.NOMBRE
+FROM CLIENTES c , FACTURAS f
+WHERE c.CODCLI = f.CODCLI
+AND EXTRACT (YEAR FROM f.FECHA) = EXTRACT (YEAR FROM SYSDATE)-1
+AND EXTRACT (MONTH FROM f.FECHA) IN (11, 12)
+AND f.CODFAC IN (SELECT lf.CODFAC
+				FROM LINEAS_FAC lf
+				WHERE lf.CANT * lf.PRECIO >60.5 );
 
 -- Ejercicio 9:
-select a.CODART,a.DESCRIP,a.PRECIO
+select *
+from (select a.CODART,a.DESCRIP,a.PRECIO
 from ARTICULOS a
-where a.CODART  in (select max(a2.PRECIO)
-                  from ARTICULOS a2);
+order by a.PRECIO desc)
+where ROWNUM<11;
+
+-- Ejercicio 10:
+select p.NOMBRE
+from (select p2.NOMBRE,count(c.CODCLI)
+                  from CLIENTES c,PROVINCIAS p2,PUEBLOS pu2
+                  where p2.CODPRO=pu2.CODPRO
+                  and pu2.CODPUE=c.CODPUE
+                  group by p2.NOMBRE
+                  order by count(c.CODCLI) desc) p
+where ROWNUM=1;
+
+
+
+-- Ejercicio 11:
+SELECT ARTICULOS.codart, ARTICULOS.descrip
+FROM ARTICULOS, LINEAS_FAC, FACTURAS
+WHERE ARTICULOS.codart = LINEAS_FAC.codart AND LINEAS_FAC.CODFAC = FACTURAS.CODFAC
+AND ARTICULOS.PRECIO > 90.15
+AND extract(YEAR FROM FECHA) = (extract(YEAR FROM sysdate)-1)
+AND ARTICULOS.codart IN(SELECT codart
+						  FROM LINEAS_FAC
+						  GROUP BY codart
+						  HAVING SUM(nvl(CANT,0)) < 10);
+
+-- Ejercicio 12:
+select a.CODART,a.DESCRIP
+from ARTICULOS a ,LINEAS_FAC ln,FACTURAS f
+where a.CODART=ln.CODART
+and ln.CODFAC=f.CODFAC
+and ln.PRECIO > (select  min(a2.PRECIO) *3000
+                from ARTICULOS a2) ;
+
+-- Ejercicio 13:
+SELECT B.NOMBRE
+FROM (SELECT c.NOMBRE, MAX(fc.PRECIO*fc.CANT)
+FROM CLIENTES c, FACTURAS f, LINEAS_FAC fc
+WHERE c.CODCLI = f.CODCLI
+AND f.CODFAC = fc.CODFAC
+GROUP BY c.NOMBRE
+ORDER BY MAX(fc.PRECIO*fc.CANT) DESC) B
+WHERE ROWNUM =1;
+
+
+
