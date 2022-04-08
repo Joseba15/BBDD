@@ -1,0 +1,81 @@
+
+-- Ejercicio 1:
+
+CREATE OR REPLACE
+PROCEDURE ESCRIBE
+AS
+    BEGIN
+        DBMS_OUTPUT.PUT_LINE('Hola Mundo');
+    END;
+
+BEGIN
+   ESCRIBE();
+END;
+
+-- Ejercicio 2:
+CREATE OR REPLACE
+PROCEDURE ESCRIBE_MENSAJE (mensaje VARCHAR2)
+AS
+
+    BEGIN
+        DBMS_OUTPUT.PUT_LINE(mensaje);
+    END;
+/*
+BEGIN
+   ESCRIBE_MENSAJE('Hola buenos dias');
+END;
+*/
+-- Ejercicio 3:
+
+CREATE OR REPLACE
+PROCEDURE SERIE(MINIMO NUMBER, MAXIMO  NUMBER,PASO NUMBER)
+AS
+    CONTADOR NUMBER;
+    BEGIN
+        CONTADOR:=MINIMO;
+        WHILE CONTADOR <=MAXIMO LOOP
+            DBMS_OUTPUT.PUT_LINE(CONTADOR);
+            CONTADOR:=CONTADOR+PASO;
+            END LOOP;
+    END;
+/*
+BEGIN
+    SERIE(1,10,2);
+END;
+ */
+
+-- Ejercicio 4:
+
+CREATE OR REPLACE
+FUNCTION AZAR(MINIMO NUMBER, MAXIMO  NUMBER)
+RETURN NUMBER
+AS
+    BEGIN
+        RETURN MOD(ABS(DBMS_RANDOM.RANDOM),MAXIMO)+MINIMO;
+    END;
+
+
+--SELECT AZAR(1,20) FROM DUAL;
+
+-- Ejercicio 5:
+CREATE OR REPLACE
+FUNCTION NOTA(NOTA NUMBER)
+RETURN VARCHAR2
+IS
+    RESULT VARCHAR2(60);
+    BEGIN
+        IF NOTA<5 THEN
+            RESULT:='Es un insuficiente';
+        ELSIF NOTA=5 THEN
+            RESULT:='Es un suficiente';
+        ELSIF NOTA=6 THEN
+            RESULT:='Es un bien';
+        ElSIF NOTA=7 OR NOTA=8  THEN
+            RESULT:='Es un notable';
+        ElSIF NOTA=9 OR NOTA=10  THEN
+            RESULT:='Es un sobresaliente';
+        END IF;
+        RETURN RESULT;
+    END;
+
+SELECT NOTA(6) FROM DUAL;
