@@ -63,16 +63,49 @@ CURSOR CUR_EJ2(NUMDEPAR NUMBER, NUMHIJOS NUMBER) IS
         WHERE NUMHI=NUMHIJOS AND NUMDE=NUMDEPAR;
 
         BEGIN
-            FOR EM IN CUR_EJ2 LOOP
+            FOR EM IN CUR_EJ2(NUMDEPAR , NUMHIJOS ) LOOP
+
                     DBMS_OUTPUT.PUT_LINE('Numero de empleado: ' || EM.NUMEM);
-                    DBMS_OUTPUT.PUT_LINE('Numero de empleado: ' || EM.NOMEM);
+                    DBMS_OUTPUT.PUT_LINE('Nombre de empleado: ' || EM.NOMEM);
                     DBMS_OUTPUT.PUT_LINE('Salario : ' || EM.SALAR);
                     DBMS_OUTPUT.PUT_LINE('Salario : ' || EM.NUMHI);
-                    DBMS_OUTPUT.PUT_LINE('Numero de empleados: ' || CONT );
-
+                    DBMS_OUTPUT.PUT_LINE('Numero de departamentos ' || NUMDEPAR );
                     CONT:=CONT+1;
                 END LOOP;
+                 DBMS_OUTPUT.PUT_LINE('Numero de empleados: ' || CONT );
+
             EXCEPTION
         	    WHEN OTHERS THEN
 	                DBMS_OUTPUT.PUT_LINE('Se ha procucido un error ');
+        END;
+
+    BEGIN
+        EJ3(112,0);
+    END;
+
+    -- Ejercicio 4:
+
+CREATE OR REPLACE PROCEDURE EJ4(NOMBREEMPLEADO VARCHAR2(50))
+AS
+CURSOR CUR_EJ4(NOMBREEMPLEADO VARCHAR2(50)) IS
+        SELECT E.NOMEM,E.FECNA
+        FROM EMPLEADOS E
+        WHERE E.NOMEM=NOMBREEMPLEADO ;
+        MESES NUMBER;
+        A NUMBER;
+        M NUMBER;
+        D NUMBER;
+
+        BEGIN
+            FOR registro IN CUR_EJ4(NOMBREEMPLEADO  ) LOOP
+                    MESES:=MONTHS_BETWEEN(SYSDATE ,registro.FECNA);
+                    A:=MESES/12;
+                    M:=mod(MESES,12);
+                    D:=(M-TRUNC(M))*30;
+
+                    DBMS_OUTPUT.PUT_LINE('NOMBREEMPLEADO'
+                        || ' : ' || trunc(A)  || '  '
+                        ||  trunc(M) || '  '
+                        || trunc(D) );
+                END LOOP;
         END;
