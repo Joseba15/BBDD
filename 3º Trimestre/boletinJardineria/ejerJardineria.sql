@@ -171,3 +171,73 @@ END;
 
 SELECT EJ7('545454', 2008) FROM DUAL;
 
+
+
+-- EJEMPLO CURSOR DENTRO DE OTRO:
+
+CREATE OR REPLACE  PROCEDURE  MOSTRAR_PEDIDOS
+AS
+        CURSOR C_PRIMERO IS
+        SELECT CODIGO_PEDIDO,FECHA_PEDIDO
+        FROM  JARDINERIA.PEDIDO;
+
+        CURSOR  C_SEGUNDO(CODIGO_P NUMBER) IS
+        SELECT DP.CODIGO_PEDIDO,DP.CANTIDAD,DP.PRECIO_UNIDAD,DP.NUMERO_LINEA
+        FROM JARDINERIA.DETALLE_PEDIDO DP
+        WHERE CODIGO_P=CODIGO_PEDIDO;
+
+        BEGIN
+                FOR EM IN C_PRIMERO LOOP
+                    DBMS_OUTPUT.PUT_LINE('Codigo del pedido: '|| em.CODIGO_PEDIDO);
+                    DBMS_OUTPUT.PUT_LINE('Fecha del pedido: '|| em.FECHA_PEDIDO);
+                    DBMS_OUTPUT.PUT_LINE('-------------------------------------------------------------------: ');
+
+                    FOR EM2 IN C_SEGUNDO(EM.CODIGO_PEDIDO) LOOP
+                                    DBMS_OUTPUT.PUT_LINE('              CODIGO del pedido: '|| em2.CODIGO_PEDIDO);
+                                    DBMS_OUTPUT.PUT_LINE('              Cantidad del pedido: '|| em2.CANTIDAD);
+                                    DBMS_OUTPUT.PUT_LINE('              Precio por unidad: '|| em2.PRECIO_UNIDAD);
+                                    DBMS_OUTPUT.PUT_LINE('              Numero de linea: '|| em2.NUMERO_LINEA);
+                                    DBMS_OUTPUT.PUT_LINE('              ############################### '|| CHR(12));
+                    END LOOP;
+                END LOOP;
+
+        END ;
+
+BEGIN
+        MOSTRAR_PEDIDOS();
+END ;
+
+-- Ejercicio 10:
+
+
+CREATE OR REPLACE  PROCEDURE  EJ10
+AS
+        CURSOR C_EMP IS
+        SELECT E.CODIGO_EMPLEADO,E.NOMBRE,E.APELLIDO1,E.APELLIDO2,E.PUESTO,O.CODIGO_OFICINA,O.CIUDAD,COUNT( DISTINCT C.CODIGO_CLIENTE) AS TOTAL_CLI
+        FROM JARDINERIA.EMPLEADO E , JARDINERIA.OFICINA O,JARDINERIA.CLIENTE C
+        WHERE E.CODIGO_OFICINA=O.CODIGO_OFICINA
+        AND C.CODIGO_EMPLEADO_REP_VENTAS=E.CODIGO_EMPLEADO
+        GROUP BY E.NOMBRE,E.APELLIDO1,E.APELLIDO2,E.PUESTO,O.CODIGO_OFICINA,O.CIUDAD,E.CODIGO_EMPLEADO ;
+
+        CURSOR C_CLI(COD_EMP NUMBER) IS
+        SELECT C.CODIGO_CLIENTE,C.NOMBRE_CLIENTE,COUNT(PE.CODIGO_PEDIDO) AS pedido,SUM(PA.TOTAL) as pago
+        FROM  JARDINERIA.CLIENTE C, JARDINERIA.PAGO PA ,JARDINERIA.PEDIDO PE
+        WHERE  COD_EMP=C.CODIGO_EMPLEADO_REP_VENTAS
+        AND  C.CODIGO_CLIENTE=PA.CODIGO_CLIENTE(+)
+        AND C.CODIGO_CLIENTE=PE.CODIGO_CLIENTE(+)
+        GROUP BY C.CODIGO_CLIENTE,C.NOMBRE_CLIENTE;
+
+        BEGIN
+                FOR EM IN C_EMP LOOP
+                    DBMS_OUTPUT.PUT_LINE('************************************************************'|| CHR(13));
+                    DBMS_OUTPUT.PUT_LINE('Nombre del empleado: '|| em.NOMBRE  || '  ' || em.APELLIDO1 || '  ' || em.APELLIDO2 || ' Oficina: '|| em.CODIGO_OFICINA ||  '  ' ||  em.CIUDAD || ' Puesto:   '||  em.PUESTO || CHR(13) || ' Nº Total de clientes :'  || em.TOTAL_CLI) ;
+                    FOR EM2 IN C_CLI(EM.CODIGO_EMPLEADO) LOOP
+                                DBMS_OUTPUT.PUT_LINE('                   -------- Cliente ' || em2.NOMBRE_CLIENTE  || '  ' || em2.CODIGO_CLIENTE || ' Total pagos:  '|| em2.pago || ' Total pedido:   '||  em2.pedido|| CHR(13)) ;
+                        END LOOP;
+                    END LOOP;
+
+        END;
+
+BEGIN
+        EJ10();
+END ;
