@@ -1,0 +1,88 @@
+/*
+ALTER SESSION SET "_oracle_script" = TRUE;
+CREATE USER boletin7_1 IDENTIFIED BY boletin7_1;
+GRANT CONNECT , RESOURCE , DBA TO boletin7_1;
+*/
+
+-- Ejercicio 1:
+
+CREATE TABLE empleados (
+    dni VARCHAR2(9) PRIMARY KEY,
+    nomemp VARCHAR2(50),
+    jefe VARCHAR2(9),
+    departamento NUMBER,
+    salario NUMBER(9,2) DEFAULT 1000,
+    usuario VARCHAR2(50),
+    fecha DATE,
+    CONSTRAINT FK_JEFE FOREIGN KEY (jefe) REFERENCES empleados (dni) );
+
+
+-- Ejercicio 1:
+
+CREATE OR REPLACE
+TRIGGER  T_EJ1
+    BEFORE  INSERT ON BOLETIN7_1.EMPLEADOS
+    FOR EACH ROW
+    DECLARE
+        CONT_JEFE NUMBER:=0;
+
+    BEGIN
+            SELECT count(*) INTO CONT_JEFE
+            FROM empleados WHERE JEFE = :new.JEFE;
+
+            IF   CONT_JEFE>4 THEN
+                    RAISE_APPLICATION_ERROR('-20001',' Un jefe no puede tener mas 5 empleados');
+            END IF;
+    END;
+
+/*
+--INSERT INTO BOLETIN7_1.EMPLEADOS VALUES ('999999A', 'Joseba',  '999999A' , 1, 1000, 'Josebita', to_date('10/04/2001', 'DD/MM/YYYY'));
+--INSERT INTO BOLETIN7_1.EMPLEADOS VALUES ('999999B', 'Paula',  '999999A' , 1, 1000, 'Josebita', to_date('10/04/2001', 'DD/MM/YYYY'));
+--NSERT INTO BOLETIN7_1.EMPLEADOS VALUES ('999999S', 'Antonio',  '999999A' , 1, 1000, 'Josebita', to_date('10/04/2001', 'DD/MM/YYYY'));
+--INSERT INTO BOLETIN7_1.EMPLEADOS VALUES ('999999F', 'Joaquin',  '999999A' , 1, 1000, 'Josebita', to_date('10/04/2001', 'DD/MM/YYYY'));
+--INSERT INTO BOLETIN7_1.EMPLEADOS VALUES ('999999J', 'Euseba',  '999999A' , 1, 1000, 'Josebita', to_date('10/04/2001', 'DD/MM/YYYY'));
+--INSERT INTO BOLETIN7_1.EMPLEADOS VALUES ('999999K', 'Euseba',  '999999A' , 1, 1000, 'Josebita', to_date('10/04/2001', 'DD/MM/YYYY'));
+*/
+
+-- Ejercicio 2:
+CREATE OR REPLACE
+TRIGGER  T_EJ2
+    BEFORE  UPDATE ON BOLETIN7_1.EMPLEADOS
+    FOR EACH ROW
+
+    BEGIN
+            IF  :NEW.SALARIO > (:OLD.SALARIO *1.2)  THEN
+                RAISE_APPLICATION_ERROR('-20001',' El empleado no puede tener mas del 20 % de su salario');
+            END IF;
+    END;
+
+SELECT * FROM BOLETIN7_1.EMPLEADOS;
+
+UPDATE  BOLETIN7_1.EMPLEADOS SET SALARIO=2000 WHERE DNI='999999A';
+
+-- Ejercicio 3:
+
+CREATE TABLE empleados_baja(
+    dni VARCHAR2(9) PRIMARY KEY,
+    nomemp VARCHAR2 (50),
+    jefe VARCHAR2(9),
+    departamento NUMBER,
+    salario NUMBER(9,2) DEFAULT 1000,
+    usuario VARCHAR2(50),
+    fecha DATE );
+
+
+CREATE OR REPLACE
+TRIGGER  T_EJ3_1
+    AFTER DELETE ON EMPLEADOS
+    FOR EACH ROW
+
+    BEGIN
+                INSERT INTO EMPLEADOS_BAJA VALUES  (:OLD.DNI, :OLD.NOMEMP, :OLD.JEFE, :OLD.DEPARTAMENTO, :OLD.SALARIO, USER , SYSDATE);
+    END;
+
+SELECT * FROM BOLETIN7_1.EMPLEADOS;
+
+DELETE FROM BOLETIN7_1.EMPLEADOS WHERE EMPLEADOS.DNI='999999F';
+
+SELECT * FROM BOLETIN7_1.EMPLEADOS_BAJA;
