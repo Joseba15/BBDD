@@ -17,7 +17,7 @@ CREATE TABLE empleados (
     CONSTRAINT FK_JEFE FOREIGN KEY (jefe) REFERENCES empleados (dni) );
 
 
--- Ejercicio 1:
+-- Ejercicio :
 
 CREATE OR REPLACE
 TRIGGER  T_EJ1
@@ -86,3 +86,86 @@ SELECT * FROM BOLETIN7_1.EMPLEADOS;
 DELETE FROM BOLETIN7_1.EMPLEADOS WHERE EMPLEADOS.DNI='999999F';
 
 SELECT * FROM BOLETIN7_1.EMPLEADOS_BAJA;
+
+
+-- Ejercicio 4:
+
+CREATE OR REPLACE
+TRIGGER  T_EJ4
+    BEFORE INSERT ON EMPLEADOS
+    FOR EACH ROW
+    DECLARE
+        DEPART  NUMBER:=0;
+
+    BEGIN
+            SELECT E.DEPARTAMENTO
+            INTO DEPART
+            FROM EMPLEADOS E
+            WHERE  DNI  LIKE  :NEW.JEFE ;
+
+            IF  DEPART!=:NEW.DEPARTAMENTO THEN
+                RAISE_APPLICATION_ERROR('-20001',' El Empleado y su jefe no pertenecen al mismo departamento ');
+            END IF;
+
+    END;
+
+-- Ejercicio 5:
+CREATE OR REPLACE
+TRIGGER  T_EJ5
+    BEFORE INSERT ON EMPLEADOS
+    FOR EACH ROW
+    DECLARE
+                SUMA_SALARIO NUMBER;
+    BEGIN
+            SELECT  SUM(E.SALARIO)
+            INTO SUMA_SALARIO
+            FROM EMPLEADOS E
+            WHERE E. DEPARTAMENTO  LIKE  :NEW.DEPARTAMENTO;
+
+            IF  (SUMA_SALARIO+ :NEW.salario)>10000 THEN
+                RAISE_APPLICATION_ERROR('-20001',' La suma de los salarios no supera a los 10000 ');
+            END IF;
+
+    END;
+
+
+-- EJERCICIO 6:
+
+CREATE TABLE controlCambios(
+    usuario varchar2(30),
+    fecha date,
+    tipooperacion varchar2(30),
+    datoanterior varchar2(30),
+    datonuevo varchar2(30)
+);
+
+CREATE OR REPLACE TRIGGER T_EJ6
+    AFTER UPDATE ON EMPLEADOS
+    FOR EACH ROW
+
+    BEGIN
+            INSERT INTO CONTROLCAMBIOS VALUES (USER, SYSDATE, 'UPDATE', :OLD.DNI, :NEW.DNI);
+    END;
+
+UPDATE EMPLEADOS SET DNI= '999999Z' WHERE DNI='999999F';
+
+SELECT * FROM BOLETIN7_1.EMPLEADOS;
+SELECT * FROM CONTROLCAMBIOS ;
+
+
+
+-- EJERCICIO 7:
+
+CREATE OR REPLACE TRIGGER T_EJ7
+    AFTER INSERT ON EMPLEADOS
+    FOR EACH ROW
+
+    BEGIN
+            INSERT INTO CONTROLCAMBIOS VALUES (USER, SYSDATE, 'UPDATE',  NULL , :NEW.DNI);
+
+    END;
+
+
+INSERT INTO  EMPLEADOS VALUES ('12345W', 'Rafa', ' 999999A', 1 ,1000, 'Rafa02', to_date('22/06/2001', 'DD/MM/YYYY') );
+
+SELECT * FROM CONTROLCAMBIOS;
